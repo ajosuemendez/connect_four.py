@@ -1,7 +1,8 @@
 import numpy as np
 
-COLUMNS = 5
-ROWS = 5
+COLUMNS = 7
+ROWS = 7
+WINNING_NUMBER = 4 #WINNNG_NUMBER +1 is the number of pieces you need to connect
 
 def check_place(board,player_sel, counter,ROWS):
     if board[ROWS-counter][player_sel] == 0:
@@ -39,7 +40,7 @@ def check_winner(matrix_A,ver_hor= True):
                 horizontal_matched = False
                 vertical_matched = False
 
-                if count_vertical == 3 or count_horizontal == 3:
+                if count_vertical == WINNING_NUMBER or count_horizontal == WINNING_NUMBER:
                         winner = True
                         break
                 if matrix_A[r][c] == matrix_A[r][c+1] != 0:
@@ -66,7 +67,7 @@ def check_winner(matrix_A,ver_hor= True):
                 right_diagonal_matched_DOWN = False
                 right_diagonal_matched_RIGHT = False
 
-                if count_right_diagonal_DOWN == 3 or count_right_diagonal_RIGHT == 3 or count_left_diagonal_DOWN == 3 or count_left_diagonal_RIGHT == 3:
+                if count_right_diagonal_DOWN == WINNING_NUMBER or count_right_diagonal_RIGHT == WINNING_NUMBER or count_left_diagonal_DOWN == WINNING_NUMBER or count_left_diagonal_RIGHT == WINNING_NUMBER:
                         winner = True
                         break
 
@@ -108,7 +109,7 @@ def check_winner(matrix_A,ver_hor= True):
                     #print("bad left diagonal RIGHT")
                     count_left_diagonal_RIGHT = 0
 
-        if count_right_diagonal_DOWN == 3 or count_right_diagonal_RIGHT == 3 or count_left_diagonal_DOWN == 3 or count_left_diagonal_RIGHT == 3 or count_vertical == 3 or count_horizontal == 3:
+        if count_right_diagonal_DOWN == WINNING_NUMBER or count_right_diagonal_RIGHT == WINNING_NUMBER or count_left_diagonal_DOWN == WINNING_NUMBER or count_left_diagonal_RIGHT == WINNING_NUMBER or count_vertical == WINNING_NUMBER or count_horizontal == WINNING_NUMBER:
             winner = True
             break                       
     """
