@@ -1,8 +1,14 @@
 import numpy as np
+import pygame
+import sys
+import math
 
 COLUMNS = 7
 ROWS = 7
-WINNING_NUMBER = 4 #WINNNG_NUMBER +1 is the number of pieces you need to connect
+WINNING_NUMBER = 3 #WINNNG_NUMBER +1 is the number of pieces you need to connect
+BOX = 100
+RADIUS = int(BOX / 2) -5
+
 
 def check_place(board,player_sel, counter,ROWS):
     if board[ROWS-counter][player_sel] == 0:
@@ -44,12 +50,12 @@ def check_winner(matrix_A,ver_hor= True):
                         winner = True
                         break
                 if matrix_A[r][c] == matrix_A[r][c+1] != 0:
-                    print("good horizontal")
+                    #print("good horizontal")
                     count_horizontal += 1
                     horizontal_matched = True
 
                 if matrix_A[c][r] == matrix_A[c+1][r] != 0:
-                    print("good vertical")
+                    #print("good vertical")
                     count_vertical += 1
                     vertical_matched = True
 
@@ -124,13 +130,12 @@ def check_winner(matrix_A,ver_hor= True):
     """
     return winner
 
-def execute_game(turns,board):
+def execute_game(turns,board,player_selection):
     game_over = False
     flag_succesful_drop = False
     while(True):
-        player_selection = int(input("Player {} please choice a column(0-5): ".format(turns+1)))
-        if (player_selection>=0 and player_selection<=5): 
-            
+        #player_selection = int(input("Player {} please choice a column(0-{}): ".format(turns+1,COLUMNS-1))) #for console input
+        if (player_selection>=0 and player_selection<=COLUMNS-1):
             break
         
     for i in range(ROWS):
@@ -148,24 +153,83 @@ def execute_game(turns,board):
     
     return game_over,turns
 
+def draw_board(screen,board,turns,xpos):
     
+    pygame.draw.rect(screen,(0,0,0),(0,0,COLUMNS*BOX,BOX))
+    if turns == 0:
+        pygame.draw.circle(screen,(255,0,0),(xpos,BOX/2),RADIUS)
+    else:
+        pygame.draw.circle(screen,(0,255,0),(xpos,BOX/2),RADIUS)
+    
+    pygame.draw.rect(screen,(0,0,255),(0,BOX,COLUMNS*BOX,ROWS*BOX))
+
+    for r in range(1,ROWS+1):
+        for c in range(COLUMNS):
+            if board[r-1][c] == 0: 
+                pygame.draw.circle(screen,(0,0,0),(c*BOX + BOX/2, r*BOX + BOX/2),RADIUS)
+            elif board[r-1][c] == 1:
+                pygame.draw.circle(screen,(255,0,0),(c*BOX + BOX/2, r*BOX + BOX/2),RADIUS)
+            else:
+                pygame.draw.circle(screen,(0,255,0),(c*BOX + BOX/2, r*BOX + BOX/2),RADIUS)
+
+    pygame.display.update()
 
 if __name__ == "__main__":
     
+    pygame.init()
+    
+    width = BOX * COLUMNS
+    height = BOX * ROWS + BOX
+    turns = 0
+
     board = np.zeros((ROWS,COLUMNS))
     print(board)
 
-    game_over = False
-    turns = 0
+    screen = pygame.display.set_mode((width,height))
+    draw_board(screen,board,turns,2*width)
+    pygame.display.update()
 
+    font_obj = pygame.font.SysFont("monospace",int(math.floor(width/17.5)))
+
+    game_over = False
+    
     while not game_over:
-        #Turn of Player 1
-        if turns == 0:
-            game_over, turns = execute_game(turns,board)
-            
-        #Turn of Player 2
-        elif turns == 1:
-            game_over, turns= execute_game(turns,board)
-            
-        print(board)
-        turns  = turns %2
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+            if event.type == pygame.MOUSEMOTION:
+                xpos = event.pos[0]
+                pygame.draw.rect(screen,(0,0,0),(0,0,COLUMNS*BOX,BOX))
+                if turns == 0:
+                    pygame.draw.circle(screen,(255,0,0),(xpos,BOX/2),RADIUS)
+                else:
+                    pygame.draw.circle(screen,(0,255,0),(xpos,BOX/2),RADIUS)
+
+                pygame.display.update()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                player_selection = event.pos[0] // 100
+                #Turn of Player 1
+                if turns == 0:
+                    game_over, turns = execute_game(turns,board,player_selection)
+                    
+                #Turn of Player 2
+                elif turns == 1:
+                    game_over, turns= execute_game(turns,board,player_selection)
+                    
+                #print(board)
+                if not game_over: turns = turns %2
+                xpos = event.pos[0]
+                draw_board(screen,board,turns,xpos)
+
+        if game_over:
+            pygame.draw.rect(screen,(0,0,0),(0,0,COLUMNS*BOX,BOX))
+            if turns == 1:
+                label = font_obj.render("Player {} kicked your ass!!".format(turns),1,(255,0,0))
+            else:
+                label = font_obj.render("Player {} kicked your ass!!".format(turns),1,(0,255,0))
+            screen.blit(label,(35,30))
+            pygame.display.update()
+            pygame.time.delay(4000)
